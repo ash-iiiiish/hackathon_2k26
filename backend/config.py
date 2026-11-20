@@ -13,7 +13,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost:5432/prepwise")
 
 # Groq exposes an OpenAI-compatible API with a free tier.
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # Placeholder keys from .env.example should not switch on live mode.
