@@ -1,24 +1,65 @@
 import os
 from typing import List, Dict, Optional
 from src.models import Topic, ContentType
-from src.config import DEMO_MODE, LLM_PROVIDER, OPENAI_API_KEY, GOOGLE_API_KEY, LLM_MODEL
+from src.config import (
+    DEMO_MODE, LLM_PROVIDER,
+    GROQ_API_KEY, GROQ_MODEL,
+    OPENAI_API_KEY, GOOGLE_API_KEY, LLM_MODEL
+)
 
 
 def _get_llm():
-    """Return an LLM instance or None if in demo mode."""
+    """
+    Return an LLM instance.
+    Priority: Groq (free) → OpenAI → Gemini → None (demo mode)
+    """
     if DEMO_MODE:
         return None
 
     try:
+        # 1. Groq (FREE & FAST) - recommended
+        if LLM_PROVIDER == "groq" and GROQ_API_KEY:
+            from langchain_groq import ChatGroq
+            return ChatGroq(
+                model=GROQ_MODEL,
+                api_key=GROQ_API_KEY,
+                temperature=0.4,
+                max_tokens=1024,
+            )
+
+        # 2. OpenAI (optional)
+        if LLM_PROVIDER == "openai" and OPENAI_API_KEY:
+            from langchain_openai import ChatOpenAI
+            return ChatOpenAI(
+                model=LLM_MODEL,
+                api_key=OPENAI_API_KEY,
+                temperature=0.4
+            )
+
+        # 3. Gemini (optional)
         if LLM_PROVIDER == "gemini" and GOOGLE_API_KEY:
             from langchain_google_genai import ChatGoogleGenerativeAI
-            return ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=GOOGLE_API_KEY, temperature=0.4)
-        else:
-            from langchain_openai import ChatOpenAI
-            return ChatOpenAI(model=LLM_MODEL, api_key=OPENAI_API_KEY, temperature=0.4)
+            return ChatGoogleGenerativeAI(
+                model="gemini-1.5-flash",
+                google_api_key=GOOGLE_API_KEY,
+                temperature=0.4
+            )
+
+        # Fallback: try Groq if key exists even if provider setting is different
+        if GROQ_API_KEY:
+            from langchain_groq import ChatGroq
+            return ChatGroq(
+                model=GROQ_MODEL,
+                api_key=GROQ_API_KEY,
+                temperature=0.4,
+                max_tokens=1024,
+            )
+
     except Exception as e:
         print(f"[LLM Init Error] {e}")
         return None
+
+    return None
 
 
 def generate_explanation(topic: Topic, context: str = "") -> str:
@@ -45,7 +86,7 @@ Structure:
         response = llm.invoke(prompt)
         return response.content
     except Exception as e:
-        return _demo_explanation(topic) + f"\n\n*(LLM fallback used: {str(e)[:80]})*"
+        return _demo_explanation(topic) + f"\n\n*(Fell back to demo content: {str(e)[:80]})*"
 
 
 def generate_summary(topic: Topic, context: str = "") -> str:
@@ -94,8 +135,8 @@ No markdown, no extra text.
         response = llm.invoke(prompt)
         import json
         text = response.content.strip()
-        # Clean possible markdown
-        if text.startswith("```"):
+        # Clean possible markdown fences
+        if "```" in text:
             text = text.split("```")[1]
             if text.startswith("json"):
                 text = text[4:]
@@ -121,7 +162,7 @@ Return ONLY JSON list:
         response = llm.invoke(prompt)
         import json
         text = response.content.strip()
-        if text.startswith("```"):
+        if "```" in text:
             text = text.split("```")[1]
             if text.startswith("json"):
                 text = text[4:]

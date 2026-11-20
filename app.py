@@ -15,19 +15,19 @@ import sys
 # Ensure src is importable
 sys.path.insert(0, os.path.dirname(__file__))
 
-from src.models import Topic, StudySession, ContentType, UserProfile
-from src.database import (
+from hackathon_2k26.src.models import Topic, StudySession, ContentType, UserProfile
+from hackathon_2k26.src.database import (
     load_profile, save_profile, load_topics, save_topics,
     load_sessions, add_session, update_topic_mastery
 )
-from src.priority_engine import generate_daily_plan, recommend_content_type
-from src.mastery import update_mastery_after_session, compute_progress
-from src.content_generator import (
+from hackathon_2k26.src.priority_engine import generate_daily_plan, recommend_content_type
+from hackathon_2k26.src.mastery import update_mastery_after_session, compute_progress
+from hackathon_2k26.src.content_generator import (
     generate_explanation, generate_summary,
     generate_quiz, generate_flashcards
 )
-from src.sample_data import get_or_create_sample, create_sample_curriculum
-from src.config import APP_NAME, APP_TAGLINE, DEMO_MODE
+from hackathon_2k26.src.sample_data import get_or_create_sample, create_sample_curriculum
+from hackathon_2k26.src.config import APP_NAME, APP_TAGLINE, DEMO_MODE
 
 # -------------------- Page Config --------------------
 st.set_page_config(

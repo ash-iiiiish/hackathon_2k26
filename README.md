@@ -12,22 +12,19 @@ A priority-driven AI tutoring system that plans, teaches, tracks mastery, and ad
 - Serves the right content format (Explanation → Summary → Quiz → Flashcards)
 - Continuously tracks **topic-wise mastery (0–100)**
 - Shows clear **progress charts** and weak-area analysis
-- Works in **Demo Mode** without any API keys (rule-based fallbacks)
-- Switches to live LLM generation when you add OpenAI or Gemini keys
+- Works in **Demo Mode** without any API keys
+- Uses **free Groq API** (Llama 3.3 70B) when you add a free key
 
 ---
 
 ## Tech Stack
 
-| Layer            | Technology                          |
-|------------------|-------------------------------------|
-| Frontend         | Streamlit (dark professional UI)    |
-| Backend Logic    | Pure Python                         |
-| AI Orchestration | LangChain / LangGraph ready         |
-| RAG              | LlamaIndex compatible               |
-| Vector Store     | ChromaDB (ready)                    |
-| Charts           | Plotly                              |
-| Data             | JSON persistence (easy to swap for Postgres) |
+| Layer            | Technology                          | Cost      |
+|------------------|-------------------------------------|-----------|
+| Frontend         | Streamlit (dark professional UI)    | Free      |
+| Backend Logic    | Pure Python                         | Free      |
+| LLM (recommended)| **Groq** (Llama 3.3 / Mixtral)      | **Free tier** |
+| Charts           | Plotly                              | Free      |
 
 Main language: **Python**
 
@@ -36,31 +33,53 @@ Main language: **Python**
 ## Quick Start
 
 ```bash
-# 1. Create virtual environment (recommended)
+# 1. Create virtual environment
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. (Optional) Add API keys for live AI
+# 3. (Optional but recommended) Add free Groq key
 cp .env.example .env
-# Edit .env and add OPENAI_API_KEY or GOOGLE_API_KEY
+# Get free key → https://console.groq.com/keys
+# Paste it into .env as GROQ_API_KEY=gsk_...
 
 # 4. Run the app
 streamlit run app.py
 ```
 
-The app will open at `http://localhost:8501`
+---
+
+## Free API Setup (Groq)
+
+1. Go to [https://console.groq.com/keys](https://console.groq.com/keys)
+2. Sign up (free)
+3. Create an API key
+4. Put it in `.env`:
+
+```env
+GROQ_API_KEY=gsk_your_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
+LLM_PROVIDER=groq
+```
+
+**Recommended free models on Groq:**
+- `llama-3.3-70b-versatile` → best quality
+- `llama-3.1-8b-instant` → fastest
+- `gemma2-9b-it`
+- `mixtral-8x7b-32768`
+
+No credit card required for the free tier.
 
 ---
 
 ## Demo Mode vs Live Mode
 
-- **No API keys** → Demo Mode (pre-written high-quality explanations, quizzes, flashcards)
-- **With API keys** → Live LLM generation using GPT-4o-mini or Gemini
-
-This makes the project demoable even offline or without keys.
+| Mode       | Condition                  | Behavior                          |
+|------------|----------------------------|-----------------------------------|
+| Demo Mode  | No API key                 | High-quality rule-based content   |
+| Live Mode  | GROQ_API_KEY present       | Real LLM generation via Groq      |
 
 ---
 
@@ -69,77 +88,32 @@ This makes the project demoable even offline or without keys.
 ```
 adaptive_ai_tutor/
 ├── app.py                  # Main Streamlit application
-├── requirements.txt
+├── requirements.txt        # Only free / lightweight packages
 ├── .env.example
 ├── README.md
-├── src/
-│   ├── config.py           # Settings & feature flags
-│   ├── models.py           # Pydantic data models
-│   ├── database.py         # Persistence layer
-│   ├── priority_engine.py  # Daily plan + priority scoring
-│   ├── mastery.py          # Mastery update & progress analytics
-│   ├── content_generator.py# LLM + demo content generation
-│   └── sample_data.py      # Realistic sample curriculum
-└── data/                   # Auto-created (profile, topics, sessions)
+└── src/
+    ├── config.py
+    ├── models.py
+    ├── database.py
+    ├── priority_engine.py
+    ├── mastery.py
+    ├── content_generator.py   # Groq-first + demo fallbacks
+    └── sample_data.py
 ```
 
 ---
 
-## Core Features Implemented
+## Core Features
 
-✅ User profile (name, exam date, available hours)  
-✅ Sample Computer Science curriculum (OS, DBMS, Networks, Algorithms)  
-✅ Priority engine (mastery + weightage + spaced repetition + urgency)  
-✅ Today’s Focus (ranked daily plan)  
-✅ Study Session (Explanation / Summary / Quiz / Flashcards)  
-✅ Mastery tracking with live updates  
-✅ Progress dashboard with charts  
-✅ Weak-area highlighting  
+✅ Priority-based daily plan  
+✅ Adaptive content (Explanation / Summary / Quiz / Flashcards)  
+✅ Mastery tracking (0–100)  
+✅ Progress dashboard + charts  
+✅ Weak area highlighting  
 ✅ Clean dark professional UI  
+✅ Works fully offline in Demo Mode  
+✅ Free Groq LLM support  
 
 ---
 
-## How the Priority Engine Works
-
-```
-Priority Score =
-  (100 - mastery) * 0.45
-  + weightage * 12
-  + difficulty * 5
-  + spaced_repetition_bonus
-  × urgency_multiplier (based on days left to exam)
-```
-
-Content type is chosen automatically:
-- Mastery < 25% → Explanation
-- 25–50% → Summary
-- 50–75% → Quiz
-- > 75% → Flashcards
-
----
-
-## Future Extensions (Easy to Add)
-
-- Real RAG over uploaded PDF notes (LlamaIndex already in requirements)
-- LangGraph multi-agent tutor (Planner + Teacher + Evaluator)
-- Google Calendar sync for study blocks
-- Voice mode
-- Mobile-responsive PWA
-- Teacher / parent dashboard
-
----
-
-## For Hackathon Judges
-
-This is **not** a ChatGPT wrapper.  
-
-It is a closed-loop adaptive system:
-
-**Plan → Teach → Assess → Update Mastery → Re-Plan**
-
-The student no longer has to decide *what* to study.  
-The system decides, teaches, measures, and improves continuously.
-
----
-
-Built with ❤️ for students who want a real tutor, not just another chatbot.
+Built for students who want a real adaptive tutor — not just another chatbot.
