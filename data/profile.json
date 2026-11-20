@@ -1,0 +1,12 @@
+{
+  "name": "Alex",
+  "exam_date": "2026-12-08",
+  "daily_available_hours": 3.5,
+  "subjects": [
+    "Operating Systems",
+    "Database Systems",
+    "Computer Networks",
+    "Algorithms"
+  ],
+  "created_at": "2026-11-20T23:30:34.891887"
+}
