@@ -20,6 +20,8 @@ def complete(messages, *, as_json=False, temperature=0.3, max_tokens=1800):
     }
     if as_json:
         body["response_format"] = {"type": "json_object"}
+    if GROQ_MODEL.startswith("openai/gpt-oss"):
+        body["reasoning_effort"] = "low"  # reasoning model: keep it fast for interactive use
     try:
         res = httpx.post(
             GROQ_URL,
